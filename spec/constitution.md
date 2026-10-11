@@ -1,0 +1,22 @@
+# Constitution
+
+**Status:** Approved constraints for specification and planning; implementation remains gated on approval of `spec/spec.md` and `spec/plan.md`.
+**Source:** `Architecture/Complete Arch.docx` plus decisions approved 2026-10-11.
+
+1. **Privacy is foundational.** Documents, extracted text, chunks, embeddings, prompts, chats, and quiz content stay on-device. The purchase-verification service, if approved, receives purchase data only and never study content.
+2. **Network access is explicit.** Permit only signed-catalog refresh, model downloads, Google Play Billing operations, and the minimum purchase/entitlement verification traffic approved in the plan. No remote inference, content sync, or analytics by default. Airplane-mode study with an already downloaded model must work.
+3. **Private storage and deletion.** Store user content and model files in app-private storage; exclude sensitive app data from backup. Delete-all removes documents, derived index data, conversations, and quizzes. SQLCipher is deferred and must be described as residual risk until implemented.
+4. **No content in telemetry.** Never log or transmit document text, questions, answers, embeddings, prompts, or quiz content. Anonymous diagnostics remain disabled unless the user explicitly opts in and must be redacted.
+5. **Ground every answer.** Answers use retrieved document context only, cite source chunks/pages, and state that the answer was not found when evidence is insufficient. Retrieved document text is untrusted data and cannot override system rules.
+6. **Validate citations and structured output.** Reject or repair citations that do not map to retrieved sources. Validate quiz output against a versioned schema and grammar before display or persistence.
+7. **Keep the UI responsive.** Inference, embedding, parsing, and indexing run outside the JavaScript UI thread. Stream progress/tokens through bounded native-to-UI updates.
+8. **Supported devices.** MVP support is Android 10+ on arm64 phones with at least 4 GB RAM. Unsupported hardware receives a clear explanation; no network/cloud fallback is permitted.
+9. **Preserve the architecture.** Use React Native with the New Architecture, a portable shared C++ inference/core boundary, local SQLite/FTS5, and native Android adapters. Any departure requires a documented decision and approval.
+10. **One embedding backend in production.** Compare GGUF embeddings through `llama.rn` and ONNX Runtime Mobile in M0 on a real Android device. Select one based on measured evidence; keep a replaceable interface, not two production implementations absent demonstrated need.
+11. **License before catalog.** Maintain `licenses/model-license-register.md` for models, quantizations, runtimes, and dependencies. Verify current commercial-use, redistribution, attribution, and notice terms. Uncertain or incompatible assets are blocked from release.
+12. **Small, traceable delivery.** Implement only approved MVP behavior, one task at a time. For each task, write its acceptance test/check first, then implement, run the check, and report deviations. Keep specs current before code changes.
+13. **Measure quality and performance.** Use versioned golden questions with expected pages, absent-answer cases, per-model/language gates, and device measurements. Never claim a target is met without recorded tests or device results.
+14. **MVP quality targets.** TTFT <4 s on the 6 GB reference phone; 3B generation >=5 tokens/s; 100-page ingestion <3 min; retrieval hit rate >=85%; grounded answers >=90%; absent-answer refusal >=90%; cold start <2 s; 10-minute chat battery <6%; crash-free sessions >=99.5% at release.
+15. **Release limits.** The installed app is <100 MB without bundled models. Configurable import limits start at 100 MB and 1,000 pages. Check free storage before import, download, and indexing; preserve existing data when space is insufficient.
+16. **No unapproved scope.** MVP includes PDF Q&A, citations, chat history, model setup, free/Pro limits, and basic quizzes. OCR, flashcards, spaced repetition, summaries, study packs, accounts, iOS, and database encryption are deferred unless expressly approved otherwise.
+17. **Billing gate.** Do not implement billing until current Play requirements, purchase verification, offline entitlement behavior, and the minimal backend boundary are documented and approved. Proposed prices are not launch-approved prices.

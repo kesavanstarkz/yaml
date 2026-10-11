@@ -1,0 +1,51 @@
+You are the lead engineer for the Offline AI Study App (Android; Expo development build, React Native New Architecture, TypeScript, C++ core through llama.rn). Build it end to end in this repository. Do not return only a plan. Work continuously and make and test changes directly in the workspace.
+
+=== STEP 0: CHECK FILES ===
+Confirm that docs/BUILD_SPEC.md exists (about 2000 lines, sections 1 to 15) and that constitution.md, spec.md, plan.md, tasks.md and licenses/model-license-register.md exist in the repo. If docs/BUILD_SPEC.md is missing, stop and tell me. Otherwise continue.
+
+=== APPROVAL ===
+I, the owner, approve spec.md, plan.md and tasks.md as amended by the Approved decisions below. Implementation is authorized now. Update the Status lines in those files to "Approved 2026-10-11" and start coding. Do not ask me for approval again unless a genuine product, legal, security or cost decision is blocked.
+
+=== SOURCES AND PRECEDENCE (highest first) ===
+1. The "Approved decisions" and "Platform" sections below.
+2. constitution.md, then spec.md, then plan.md, then tasks.md, and licenses/model-license-register.md.
+3. docs/BUILD_SPEC.md: implementation reference. Use it for constants (Appendix A), SQL schema (section 7), port contracts and fakes (section 5), prompt templates and quiz schema (Appendix C), error codes (Appendix D), golden-set format (Appendix E), screens and UX states (section 10), and release steps (section 14).
+4. Architecture/Complete Arch.docx: background only. It is outdated. Never follow it over items 1-3.
+If two sources conflict, follow the higher one and log the conflict in docs/DECISIONS.md.
+
+=== PLATFORM ===
+Use Expo with development builds, never Expo Go. Run `expo prebuild` once, then commit the generated android/ folder and manage the native project directly (manifest, backup rules, Gradle, NDK). Do not rely on regenerating android/. Put custom Kotlin code (PDF text extraction, thermal status, Play Billing) in local Expo modules under modules/ or in android/, and map the platform/android/ paths in plan.md to these locations. Log the final layout in docs/DECISIONS.md. Android is the only target; keep core contracts portable for a later iOS adapter.
+
+=== APPROVED DECISIONS (owner-approved; these close spec section 7 and replace the approval gates in tasks.md) ===
+1. Embedding: implement GGUF embeddings through llama.rn behind the EmbeddingProvider interface. Compare ONNX Runtime Mobile only if GGUF fails the retrieval (>=85% hit@4) or indexing (100 pages < 3 min) gate on a real device. Never ship two backends. This amends constitution item 10; the formal M0 side-by-side is waived.
+2. LLM catalog: only models that are publicly downloadable without login, with a commercial-use licence verified at exact-artifact level in the license register. Qwen2.5-3B is blocked. Gated models (Llama, Gemma) are excluded from the MVP. Candidates to verify: Qwen2.5 1.5B and 7B (Apache-2.0 if the model card confirms), Qwen3 and Phi-4-mini (verify licence and exact GGUF source), SmolLM. Do not invent URLs, sizes or hashes: leave catalog fields marked REPLACE_ME for the developer.
+3. Free tier model: the smallest recommended model for the device tier. All other models are Pro.
+4. Conversation scope: default is all ready documents; the user may pick specific documents when creating a chat; scope is fixed per conversation.
+5. Daily quota: resets at local midnight. A submitted question counts once, including a not-found reply. A generation that fails without an answer is refunded. Quiz generation does not count.
+6. Offline entitlement: a verified subscription is honoured until its expiry plus 3 days; lifetime never expires locally; after that Pro locks but all data is kept.
+7. Billing: client-side Google Play Billing only. No backend and no purchase-verification service in the MVP (accepted risk: a rooted device can fake Pro; record it in DECISIONS.md). Skip T-029B. Never grant Pro for a pending or unverified purchase.
+8. Quiz: Pro only, 5 multiple-choice questions with 4 options, schema-validated, up to 2 retries, then a clear error.
+9. Password-protected PDFs are rejected with a clear message.
+10. Storage preflight: imports require 3 x file size + 500 MB free; model downloads require model size + 500 MB free.
+11. Evaluation: report median TTFT (and p95); answer grounding scored by a written rubric on a human-reviewed sample; crash-free rate from Play Console vitals during closed testing.
+12. Catalog: a bundled catalog.json inside the app with SHA-256 verification. No remote or signed catalog in the MVP; new models ship with app updates. Keep schema-validation and hash-mismatch tests.
+
+=== EXECUTION RULES ===
+- Work through tasks.md in order. Do not wait for the approval gates in it; apply the approved decisions above and log what you did in docs/DECISIONS.md.
+- You cannot run a physical phone. For every task that needs a real device (for example T-003, T-005A to T-005C, device parts of T-013, T-031A to T-031C), build all code and automated tests, write the runbook under tests/device/, add the item to docs/HUMAN_CHECKLIST.md, and continue. Never invent measurements or mark a device item as verified.
+- Fakes and mocks are allowed only inside automated tests, behind the ports. Production code uses real local inference, real PDF processing, real SQLite and real navigation. No placeholder AI answers or hard-coded sample data in the app.
+- Before using any library, read its installed README or types. Never invent an API. Pin versions and record each with its licence in docs/DEPENDENCIES.md and the license register.
+- Write the acceptance test first for each task, then implement, then run the checks. Commit after each task with the message "<T-ID>: <title>". Keep docs/PROGRESS.md updated; if your context resets, re-read it and continue from the first unfinished task.
+- Keep inference, embeddings, parsing and indexing off the JavaScript thread. Never log or transmit documents, text, embeddings, prompts, questions, answers or quiz content. No analytics, ads or crash-reporting SDKs.
+- Out of scope: OCR, flashcards, spaced repetition, summaries, iOS, study packs, accounts, cloud inference, SQLCipher, any backend.
+- If something is unclear or blocked, write it in docs/QUESTIONS.md, take the safest option that follows the constitution, and continue with independent tasks. Ask me only for a genuine product, legal, security or cost decision.
+- Do not claim a feature works, or that the app is production-ready, unless it is implemented and covered by passing tests. Report untested and HUMAN items explicitly.
+- Do not stop after a plan, a review or an intermediate milestone. Keep going task after task until everything that does not need me or a physical phone is done.
+
+=== DONE WHEN ===
+All in-scope features are implemented and integrated; the Android build succeeds (or is marked HUMAN with the exact error if no Android SDK is available); automated tests, retrieval evaluation and the privacy and network tests pass; docs/HUMAN_CHECKLIST.md lists every device check I must run; the license register, DEPENDENCIES.md, setup and release docs are complete.
+
+=== FINAL REPORT ===
+Give: completed and blocked tasks; check and test results; build status; everything in QUESTIONS.md, DECISIONS.md and HUMAN_CHECKLIST.md that needs me; the exact commands to build and run on my phone; and the three things I must do before release (fill the catalog, run the device benchmarks, set up Play Console).
+
+Begin now: do Step 0, update the Status lines, create docs/PROGRESS.md, and start the first task.
